@@ -9,8 +9,17 @@ class Carta:
         self.status = False 
 
     def __str__(self):
-        """Formata a carta para aparecer bonitinha no terminal (ex: 2C, 13P)"""
-        return f"{self.numero}{self.naipe.upper()}"
+        """Formata a carta para aparecer bonitinha no terminal (ex: 2C, 13P) com cores."""
+        # Códigos ANSI para colorir o texto no terminal
+        VERMELHO = '\033[91m'
+        RESET = '\033[0m'
+        
+        texto_carta = f"{self.numero}{self.naipe.upper()}"
+        
+        # Se for Copas ('c') ou Ouros ('o'), pinta de vermelho. Se não, deixa a cor padrão.
+        if self.naipe in ['c', 'o']:
+            return f"{VERMELHO}{texto_carta}{RESET}"
+        return texto_carta
         
     def __repr__(self):
         return self.__str__()

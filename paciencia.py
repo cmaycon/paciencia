@@ -1,5 +1,6 @@
 import sys
 import random
+import os
 from carta import Carta
 from estruturas import Pilha, Fila, ListaLigada
 
@@ -280,6 +281,9 @@ class Paciencia:
             return True
         return False
     
+    def limpar_tela(self):
+        """Limpa o terminal dependendo do sistema operacional."""
+        os.system('cls' if os.name == 'nt' else 'clear')
 
     def exibir_tela(self):
         """
@@ -315,6 +319,7 @@ class Paciencia:
         print("\nEmbaralhando e distribuindo as cartas...")
         self.iniciar_jogo()
         while True:
+            self.limpar_tela() # Limpa o console antes de desenhar o tabuleiro
             self.exibir_tela()
             print("\nOpções de movimentação. Digite:")
             print("1- da Fila para a Fila")
@@ -329,8 +334,6 @@ class Paciencia:
             
             match opcao:
                 case '1':
-                    # 1- da Fila para a Fila
-                    # Simplesmente tira do começo e joga pro final
                     if not self.fila.is_empty():
                         carta = self.fila.dequeue()
                         self.fila.enqueue(carta)
@@ -339,46 +342,41 @@ class Paciencia:
                         print("\n-> Fila vazia!")
                         
                 case '2':
-                    # 2- da Fila para uma Pilha
                     if self.fila.is_empty():
                         print("\n-> Fila vazia!")
-                        continue
-                    try:
-                        p_idx = int(input("Para qual Pilha (1 a 4)? ")) - 1
-                        if 0 <= p_idx <= 3:
-                            # Usa a validação que foi criada
-                            if self.verifica_pilha(self.pilhas[p_idx], self.fila.peek()):
-                                carta = self.fila.dequeue()
-                                carta.status = True # Vira para cima na pilha
-                                self.pilhas[p_idx].push(carta)
-                                print("\n-> Carta empilhada com sucesso!")
+                    else:
+                        try:
+                            p_idx = int(input("Para qual Pilha (1 a 4)? ")) - 1
+                            if 0 <= p_idx <= 3:
+                                if self.verifica_pilha(self.pilhas[p_idx], self.fila.peek()):
+                                    carta = self.fila.dequeue()
+                                    carta.status = True
+                                    self.pilhas[p_idx].push(carta)
+                                    print("\n-> Carta empilhada com sucesso!")
+                                else:
+                                    print("\n-> Movimento inválido! A pilha exige mesma cor e sequência crescente (ou Ás na vazia).")
                             else:
-                                print("\n-> Movimento inválido! A pilha exige mesma cor e sequência crescente (ou Ás na vazia).")
-                        else:
-                            print("\n-> Pilha inexistente.")
-                    except ValueError:
-                        print("\n-> Entrada inválida. Digite um número.")
+                                print("\n-> Pilha inexistente.")
+                        except ValueError:
+                            print("\n-> Entrada inválida. Digite um número.")
 
                 case '3':
-                    # 3- da Fila para uma Lista Ligada
                     if self.fila.is_empty():
                         print("\n-> Fila vazia!")
-                        continue
-                    try:
-                        l_idx = int(input("Para qual Lista Ligada (1 a 7)? ")) - 1
-                        if 0 <= l_idx <= 6:
-                            # Chama a função M1 que foi movida
-                            if self.mover_M1(self.listas_ligadas[l_idx], self.fila):
-                                print("\n-> Carta movida para a coluna com sucesso!")
+                    else:
+                        try:
+                            l_idx = int(input("Para qual Lista Ligada (1 a 7)? ")) - 1
+                            if 0 <= l_idx <= 6:
+                                if self.mover_M1(self.listas_ligadas[l_idx], self.fila):
+                                    print("\n-> Carta movida para a coluna com sucesso!")
+                                else:
+                                    print("\n-> Movimento inválido! A lista exige cores alternadas e sequência decrescente (ou Rei na vazia).")
                             else:
-                                print("\n-> Movimento inválido! A lista exige cores alternadas e sequência decrescente (ou Rei na vazia).")
-                        else:
-                            print("\n-> Lista inexistente.")
-                    except ValueError:
-                        print("\n-> Entrada inválida.")
-                        
+                                print("\n-> Lista inexistente.")
+                        except ValueError:
+                            print("\n-> Entrada inválida.")
+                            
                 case '4':
-                    # 4- de uma Pilha para uma Lista Ligada
                     try:
                         p_idx = int(input("De qual Pilha (1 a 4)? ")) - 1
                         l_idx = int(input("Para qual Lista Ligada (1 a 7)? ")) - 1
@@ -394,7 +392,6 @@ class Paciencia:
                         print("\n-> Entrada inválida.")
 
                 case '5':
-                    # 5- de uma Lista Ligada para uma Pilha
                     try:
                         l_idx = int(input("De qual Lista Ligada (1 a 7)? ")) - 1
                         p_idx = int(input("Para qual Pilha (1 a 4)? ")) - 1
@@ -404,7 +401,6 @@ class Paciencia:
                             pilha = self.pilhas[p_idx]
                             carta_alvo = lista.get_last()
                             
-                            # Verifica se a última carta da lista pode entrar na pilha
                             if self.verifica_pilha(pilha, carta_alvo):
                                 carta = lista.pop_last()
                                 pilha.push(carta)
@@ -418,14 +414,12 @@ class Paciencia:
                         print("\n-> Entrada inválida.")
 
                 case '6':
-                    # 6- de uma Lista Ligada para outra Lista Ligada
                     try:
                         orig_idx = int(input("De qual Lista Ligada (Origem 1 a 7)? ")) - 1
                         dest_idx = int(input("Para qual Lista Ligada (Destino 1 a 7)? ")) - 1
                         posicao = int(input("Qual é a posição da carta na origem (0 é a primeira do topo da coluna)? "))
                         
                         if 0 <= orig_idx <= 6 and 0 <= dest_idx <= 6 and orig_idx != dest_idx:
-                            # Chama o nosso novo método M3
                             if self.mover_M3(self.listas_ligadas[dest_idx], self.listas_ligadas[orig_idx], posicao):
                                 print("\n-> Sublista movida com sucesso!")
                             else:
@@ -434,10 +428,15 @@ class Paciencia:
                             print("\n-> Índices inválidos (ou origem igual a destino).")
                     except ValueError:
                         print("\n-> Entrada inválida.")
+                        
                 case '0':
                     break
                 case _:
                     print("\n-> Opção inválida!")
+            
+            # Pausa para o jogador ler o que aconteceu antes de limpar a tela novamente
+            if opcao != '0':
+                input("\nPressione ENTER para continuar...")
 
 if __name__ == "__main__":
     jogo = Paciencia()
