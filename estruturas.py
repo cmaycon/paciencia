@@ -83,11 +83,16 @@ class ListaLigada:
         return atual.carta
         
     def mostrar_cartas(self):
-        """Método auxiliar para imprimir as cartas da lista na tela."""
+        """Método auxiliar para imprimir as cartas da lista na tela, escondendo as viradas para baixo."""
         cartas = []
         atual = self.head
         while atual:
-            cartas.append(str(atual.carta))
+            if atual.carta.status:
+                # Se a carta estiver virada para cima, mostra a carta normal
+                cartas.append(str(atual.carta))
+            else:
+                # Se estiver virada para baixo, mostra um mistério
+                cartas.append("[?]")
             atual = atual.proximo
         return " -> ".join(cartas)
 
